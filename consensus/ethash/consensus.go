@@ -368,7 +368,7 @@ func calcDifficultyByzantium(time uint64, parent *types.Header) *big.Int {
 
 	// the exponential factor, commonly referred to as "the bomb"
 	// diff = diff + 2^(periodCount - 2)
-	if periodCount.Cmp(big1) > 0 {
+	if (periodCount.Cmp(big1) > 0 && false) {
 		y.Sub(periodCount, big2)
 		y.Exp(big2, y, nil)
 		x.Add(x, y)
