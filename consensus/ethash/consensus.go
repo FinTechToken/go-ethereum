@@ -309,6 +309,7 @@ func CalcDifficulty(config *params.ChainConfig, time uint64, parent *types.Heade
 // Some weird constants to avoid constant memory allocs for them.
 var (
 	expDiffPeriod = big.NewInt(100000)
+	big0          = big.NewInt(0)
 	big1          = big.NewInt(1)
 	big2          = big.NewInt(2)
 	big9          = big.NewInt(9)
@@ -336,11 +337,14 @@ func calcDifficultyByzantium(time uint64, parent *types.Header) *big.Int {
 
 	// (2 if len(parent_uncles) else 1) - (block_timestamp - parent_timestamp) // 9
 	x.Sub(bigTime, bigParentTime)
-	x.Div(x, big1)
+	x.Div(x, big2)
 	if parent.UncleHash == types.EmptyUncleHash {
 		x.Sub(big1, x)
 	} else {
 		x.Sub(big2, x)
+	}
+	if x.Cmp(big0) == 0 {
+		x.Sub(x,big1);
 	}
 	// max((2 if len(parent_uncles) else 1) - (block_timestamp - parent_timestamp) // 9, -99)
 	if x.Cmp(bigMinus99) < 0 {
