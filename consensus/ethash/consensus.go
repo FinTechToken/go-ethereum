@@ -344,7 +344,7 @@ func calcDifficultyByzantium(time uint64, parent *types.Header) *big.Int {
 		x.Sub(big2, x)
 	}
 	if x.Cmp(big0) == 0 {
-		x.Sub(x,big1);
+		x.Sub(x,big1)
 	}
 	// max((2 if len(parent_uncles) else 1) - (block_timestamp - parent_timestamp) // 9, -99)
 	if x.Cmp(bigMinus99) < 0 {
