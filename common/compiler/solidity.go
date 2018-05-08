@@ -102,6 +102,33 @@ func SolidityVersion(solc string) (*Solidity, error) {
 	return s, nil
 }
 
+func New(solcPath string) (sol *Solidity, err error) {
+	// set default solc
+	if len(solcPath) == 0 {
+		solcPath = "solc"
+	}
+	solcPath, err = exec.LookPath(solcPath)
+	if err != nil {
+		return
+	}
+
+	cmd := exec.Command(solcPath, "--version")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err = cmd.Run()
+	if err != nil {
+		return
+	}
+	fullVersion := out.String()
+	version := versionRegexp.FindString(fullVersion)
+
+	sol = &Solidity{
+		Path:    solcPath,
+		Version:     version,
+		FullVersion: fullVersion}
+	return
+}
+
 // CompileSolidityString builds and returns all the contracts contained within a source string.
 func CompileSolidityString(solc, source string) (map[string]*Contract, error) {
 	if len(source) == 0 {
@@ -191,4 +218,9 @@ func slurpFiles(files []string) (string, error) {
 		concat.Write(content)
 	}
 	return concat.String(), nil
+}
+
+// Compile builds and returns all the contracts contained within a source string.
+func (sol *Solidity) Compile(source string) (map[string]*Contract, error) {
+	return CompileSolidityString("solc", source)
 }

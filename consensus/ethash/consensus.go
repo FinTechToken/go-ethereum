@@ -296,6 +296,7 @@ func (ethash *Ethash) CalcDifficulty(chain consensus.ChainReader, time uint64, p
 // given the parent block's time and difficulty.
 func CalcDifficulty(config *params.ChainConfig, time uint64, parent *types.Header) *big.Int {
 	next := new(big.Int).Add(parent.Number, big1)
+	return calcDifficultyByzantium(time, parent)
 	switch {
 	case config.IsByzantium(next):
 		return calcDifficultyByzantium(time, parent)
@@ -327,7 +328,7 @@ func calcDifficultyByzantium(time uint64, parent *types.Header) *big.Int {
 	// diff = (parent_diff +
 	//         (parent_diff / 2048 * max((2 if len(parent.uncles) else 1) - ((timestamp - parent.timestamp) // 9), -99))
 	//        ) + 2^(periodCount - 2)
-
+	return big2;
 	bigTime := new(big.Int).SetUint64(time)
 	bigParentTime := new(big.Int).Set(parent.Time)
 
