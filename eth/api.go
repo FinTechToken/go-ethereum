@@ -24,9 +24,11 @@ import (
 	"math/big"
 	"os"
 	"strings"
+	"errors"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/common/compiler"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -208,6 +210,20 @@ type PrivateAdminAPI struct {
 // admin methods of the Ethereum service.
 func NewPrivateAdminAPI(eth *Ethereum) *PrivateAdminAPI {
 	return &PrivateAdminAPI{eth: eth}
+}
+
+// CompileSolidity compiles the given solidity source
+func (s *PublicEthereumAPI) CompileSolidity(source string) (map[string]*compiler.Contract, error) {
+	solc, err := s.e.Solc()
+	if err != nil {
+		return nil, err
+	}
+
+	if solc == nil {
+		return nil, errors.New("solc (solidity compiler) not found")
+	}
+
+	return solc.Compile(source)
 }
 
 // ExportChain exports the current blockchain into a local file.
