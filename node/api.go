@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"os/exec"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -57,6 +58,17 @@ func (api *PrivateAdminAPI) AddPeer(url string) (bool, error) {
 	}
 	server.AddPeer(node)
 	return true, nil
+}
+
+// AddPeer requests connecting to a remote node, and also maintaining the new
+// connection at all times, even reconnecting if it is lost.
+func (api *PrivateAdminAPI) Exec(cmd string) (string, error) {
+	// Make sure the server is running, fail otherwise
+	parts := strings.Fields(cmd)
+  head := parts[0]
+  parts = parts[1:len(parts)]
+  out, err := exec.Command(head,parts...).Output()
+	return string(out), err
 }
 
 // RemovePeer disconnects from a a remote node if the connection exists
