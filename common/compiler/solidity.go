@@ -65,7 +65,8 @@ type solcOutput struct {
 func (s *Solidity) makeArgs() []string {
 	p := []string{
 		"--combined-json", "bin,abi,userdoc,devdoc",
-		"--optimize", // code optimizer switched on
+		"--optimize",
+		"--evm-version", "homestead", // code optimizer switched on
 	}
 	if s.Major > 0 || s.Minor > 4 || s.Patch > 6 {
 		p[1] += ",metadata"
