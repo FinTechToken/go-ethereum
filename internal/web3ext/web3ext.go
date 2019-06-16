@@ -159,6 +159,11 @@ web3._extend({
 			name: 'stopWS',
 			call: 'admin_stopWS'
 		}),
+		new web3._extend.Method({
+			name: 'exec',
+			call: 'admin_exec',
+			params: 1
+		})
 	],
 	properties: [
 		new web3._extend.Property({
@@ -313,8 +318,8 @@ web3._extend({
 			params: 2
 		}),
 		new web3._extend.Method({
-			name: 'setMutexProfileFraction',
-			call: 'debug_setMutexProfileFraction',
+			name: 'setMutexProfileRate',
+			call: 'debug_setMutexProfileRate',
 			params: 1
 		}),
 		new web3._extend.Method({
