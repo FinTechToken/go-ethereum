@@ -19,6 +19,7 @@ package common
 import (
 	"database/sql/driver"
 	"encoding/json"
+
 	"math/big"
 	"reflect"
 	"strings"

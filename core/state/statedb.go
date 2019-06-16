@@ -525,6 +525,7 @@ func (self *StateDB) Copy() *StateDB {
 			state.stateObjectsDirty[addr] = struct{}{}
 		}
 	}
+
 	for hash, logs := range self.logs {
 		cpy := make([]*types.Log, len(logs))
 		for i, l := range logs {
