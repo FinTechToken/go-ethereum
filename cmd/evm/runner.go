@@ -103,7 +103,6 @@ func runCmd(ctx *cli.Context) error {
 		genesis := gen.ToBlock(db)
 		statedb, _ = state.New(genesis.Root(), state.NewDatabase(db))
 		chainConfig = gen.Config
-		blockNumber = gen.Number
 	} else {
 		statedb, _ = state.New(common.Hash{}, state.NewDatabase(ethdb.NewMemDatabase()))
 		genesisConfig = new(core.Genesis)
