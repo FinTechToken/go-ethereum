@@ -23,6 +23,8 @@ import (
 	"math/big"
 	"runtime"
 	"time"
+	
+	"github.com/ethereum/go-ethereum/log"
 
 	mapset "github.com/deckarep/golang-set"
 	"github.com/ethereum/go-ethereum/common"
@@ -535,14 +537,26 @@ func (ethash *Ethash) verifySeal(chain consensus.ChainReader, header *types.Head
 			size = 32 * 1024
 		}
 		digest, result = hashimotoLight(size, cache.cache, ethash.SealHash(header).Bytes(), header.Nonce.Uint64())
-
 		// Caches are unmapped in a finalizer. Ensure that the cache stays alive
 		// until after the call to hashimotoLight so it's not unmapped while being used.
 		runtime.KeepAlive(cache)
 	}
 	// Verify the calculated values against the ones provided in the header
 	if !bytes.Equal(header.MixDigest[:], digest) {
-		return errInvalidMixDigest
+		dataset := ethash.dataset(number, true)
+		if dataset.generated() {
+			digest, result = hashimotoFull(dataset.dataset, ethash.SealHash(header).Bytes(), header.Nonce.Uint64())
+			// Datasets are unmapped in a finalizer. Ensure that the dataset stays alive
+			// until after the call to hashimotoFull so it's not unmapped while being used.
+			runtime.KeepAlive(dataset)
+			if !bytes.Equal(header.MixDigest[:], digest) {
+				log.Debug("Bad FullDigest as bytest don't equel", "header.MixDigest:",header.MixDigest[:], " digest:", digest)
+				return errInvalidMixDigest	
+			}
+		} else {
+			log.Debug("Bad No dataset Digest as bytest don't equel", "header.MixDigest:",header.MixDigest[:], " digest:", digest)
+			return errInvalidMixDigest
+		}
 	}
 	target := new(big.Int).Div(two256, header.Difficulty)
 	if new(big.Int).SetBytes(result).Cmp(target) > 0 {
